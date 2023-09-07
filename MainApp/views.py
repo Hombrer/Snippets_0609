@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect
 from MainApp.models import Snippet
 from MainApp.forms import SnippetForm
 
+from django.core.exceptions import ObjectDoesNotExist
+
 
 def index_page(request):
     context = {'pagename': 'PythonBin'}
@@ -38,13 +40,27 @@ def snippets_page(request):
 
 
 def snippet_detail(request, snippet_id):
-    snippet = Snippet.objects.get(id=snippet_id)
-    context = {
-        'pagename': 'Просмотр сниппета',
-        "snippet": snippet
-        }
-    return render(request, 'pages/snippet_detail.html', context)
+    try:
+        snippet = Snippet.objects.get(id=snippet_id)
+    except ObjectDoesNotExist:
+        raise Http404
+    else:
+        context = {
+            'pagename': 'Просмотр сниппета',
+            "snippet": snippet
+            }
+        return render(request, 'pages/snippet_detail.html', context)
 
+
+def snippet_delete(request, snippet_id):
+    try:
+        snippet = Snippet.objects.get(id=snippet_id)
+    except ObjectDoesNotExist:
+        raise Http404
+    else:
+        snippet.delete()
+        return redirect("snippets_list")
+    
 
 # def create_snippet(request):
 #     if request.method == "POST":
