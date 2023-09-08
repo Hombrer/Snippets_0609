@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib import auth
 from MainApp.models import Snippet
@@ -17,7 +17,8 @@ def my_snippets(request):
     snippets = Snippet.objects.filter(user=request.user)
     context = {
         'pagename': 'Мои сниппеты',
-        "snippets": snippets
+        "snippets": snippets,
+        "count": snippets.count()
         }
     return render(request, 'pages/view_snippets.html', context)
 
@@ -48,7 +49,8 @@ def snippets_page(request):
     snippets = Snippet.objects.filter(public=True)
     context = {
         'pagename': 'Просмотр сниппетов',
-        "snippets": snippets
+        "snippets": snippets,
+        'count': snippets.count()
         }
     return render(request, 'pages/view_snippets.html', context)
 
@@ -67,16 +69,20 @@ def snippet_detail(request, snippet_id):
         return render(request, 'pages/snippet_detail.html', context)
 
 
+@login_required
 def snippet_delete(request, snippet_id):
     try:
         snippet = Snippet.objects.get(id=snippet_id)
     except ObjectDoesNotExist:
         raise Http404
     else:
-        snippet.delete()
-        return redirect("snippets_list")
+        if snippet.user == request.user:
+            snippet.delete()
+            return redirect("snippets_list")
+        return HttpResponseForbidden("It's others snippets")
 
 
+@login_required
 def snippet_edit(request, snippet_id):
     try:
         snippet = Snippet.objects.get(id=snippet_id)
