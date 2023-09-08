@@ -2,7 +2,7 @@ from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib import auth
 from MainApp.models import Snippet
-from MainApp.forms import SnippetForm
+from MainApp.forms import SnippetForm, UserRegistrationForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 
@@ -126,6 +126,23 @@ def login(request):
 def logout(request):
     auth.logout(request)
     return redirect('home')
+
+
+def create_user(request):
+    context = {'pagename': 'Регистрация пользователя'}
+    # Хотим получить чистую форму для заполнения полей
+    if request.method == "GET":
+        form = UserRegistrationForm
+        context['form'] = form
+        return render(request, 'pages/registration.html', context)
+    # Хотим создать нового пользователя на основе данных от формы
+    if request.method == "POST":
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+        context['form'] = form
+        return render(request,'pages/registration.html', context)
 
 
 # def create_snippet(request):
