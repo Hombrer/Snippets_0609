@@ -11,6 +11,17 @@ def index_page(request):
     context = {'pagename': 'PythonBin'}
     return render(request, 'pages/index.html', context)
 
+
+@login_required
+def my_snippets(request):
+    snippets = Snippet.objects.filter(user=request.user)
+    context = {
+        'pagename': 'Мои сниппеты',
+        "snippets": snippets
+        }
+    return render(request, 'pages/view_snippets.html', context)
+
+
 @login_required
 def add_snippet_page(request):
     # Хотим получить чистую форму для заполнения полей
@@ -85,6 +96,7 @@ def snippet_edit(request, snippet_id):
         snippet.lang = data_form['lang']
         snippet.creation_date = data_form['creation_date']
         snippet.code = data_form['code']
+        snippet.public = data_form.get('public', False)
         snippet.save()
         return redirect('snippets_list')
 
@@ -107,7 +119,7 @@ def login(request):
 
 def logout(request):
     auth.logout(request)
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+    return redirect('home')
 
 
 # def create_snippet(request):
