@@ -4,13 +4,14 @@ from django.contrib import auth
 from MainApp.models import Snippet
 from MainApp.forms import SnippetForm
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
 
 
 def index_page(request):
     context = {'pagename': 'PythonBin'}
     return render(request, 'pages/index.html', context)
 
-
+@login_required
 def add_snippet_page(request):
     # Хотим получить чистую форму для заполнения полей
     if request.method == "GET":
