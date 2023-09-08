@@ -18,3 +18,6 @@ class Snippet(models.Model):
 
     def __repr__(self):
         return f'Snippet({self.name})'
+    
+    def __str__(self):
+        return f'Snippet{self.name, self.lang, self.user}'
